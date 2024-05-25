@@ -311,6 +311,24 @@ app.put("/api/calls", async (req, res) => {
 });
 
 
+app.get('/api/allArrivals', async (req, res) => {
+  try {
+    const arrivalsSnapshot = await db.collection('arrivals').get();
+    const arrivals = [];
+
+    arrivalsSnapshot.forEach(doc => {
+      const arrivalData = doc.data();
+      arrivalData.id = doc.id;
+      arrivals.push(arrivalData);
+    });
+
+    res.status(200).json(arrivals);
+  } catch (error) {
+    console.error("Error fetching arrivals: ", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 
 
