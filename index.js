@@ -17,7 +17,7 @@ app.use(
 
 const port = process.env.PORT || 3001;
 
-const serviceAccount = require("./hauto-1f444-firebase-adminsdk-dt6x9-ec28b4fa76.json");
+const serviceAccount = require("./hauto-8891a-firebase-adminsdk-o4wzd-2f20758eff.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
