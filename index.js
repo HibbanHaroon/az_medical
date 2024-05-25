@@ -10,6 +10,7 @@ app.use(
     origin: [
       "https://azz-medical-associates.vercel.app",
       "http://localhost:3000",
+      "https://dev.df2at0r8xfim4.amplifyapp.com",
     ],
   })
 );
@@ -242,23 +243,22 @@ app.put("/api/arrivals/:arrivalId/markExit", async (req, res) => {
   }
 });
 
-
-
-
 app.post("/api/calls", async (req, res) => {
   try {
-    const { DoctorName, patientName,patientLastName} = req.body;
+    const { DoctorName, patientName, patientLastName } = req.body;
 
     const newCallRequest = {
       DoctorName,
       patientName,
       patientLastName,
-      requestAttended: false
+      requestAttended: false,
     };
 
     const docRef = await db.collection("callRequests").add(newCallRequest);
 
-    return res.status(201).json({ message: "Call request created successfully", id: docRef.id });
+    return res
+      .status(201)
+      .json({ message: "Call request created successfully", id: docRef.id });
   } catch (error) {
     console.error("Error creating call request:", error);
     return res.status(500).json({ message: "Error creating call request" });
@@ -267,18 +267,21 @@ app.post("/api/calls", async (req, res) => {
 
 app.get("/api/calls", async (req, res) => {
   try {
-    const callRequestsSnapshot = await db.collection("callRequests").where("requestAttended", "==", false).get();
+    const callRequestsSnapshot = await db
+      .collection("callRequests")
+      .where("requestAttended", "==", false)
+      .get();
 
     if (callRequestsSnapshot.empty) {
       return res.status(200).json({ message: "No call requests found" });
     }
 
-    const callRequests = callRequestsSnapshot.docs.map(doc => ({
+    const callRequests = callRequestsSnapshot.docs.map((doc) => ({
       id: doc.id,
       DoctorName: doc.data().DoctorName,
       patientName: doc.data().patientName,
-      patientLastName:doc.data().patientLastName,
-      requestAttended: doc.data().requestAttended
+      patientLastName: doc.data().patientLastName,
+      requestAttended: doc.data().requestAttended,
     }));
 
     return res.status(200).json(callRequests);
@@ -288,35 +291,36 @@ app.get("/api/calls", async (req, res) => {
   }
 });
 
-
-
-
 app.put("/api/calls", async (req, res) => {
   try {
     const { id, requestAttended } = req.body;
 
     if (!id || typeof requestAttended !== "boolean") {
-      return res.status(400).json({ message: "Invalid request. 'id' and 'requestAttended' are required fields and 'requestAttended' must be a boolean." });
+      return res.status(400).json({
+        message:
+          "Invalid request. 'id' and 'requestAttended' are required fields and 'requestAttended' must be a boolean.",
+      });
     }
 
     await db.collection("callRequests").doc(id).update({
-      requestAttended
+      requestAttended,
     });
 
-    return res.status(200).json({ message: "Call request updated successfully" });
+    return res
+      .status(200)
+      .json({ message: "Call request updated successfully" });
   } catch (error) {
     console.error("Error updating call request:", error);
     return res.status(500).json({ message: "Error updating call request" });
   }
 });
 
-
-app.get('/api/allArrivals', async (req, res) => {
+app.get("/api/allArrivals", async (req, res) => {
   try {
-    const arrivalsSnapshot = await db.collection('arrivals').get();
+    const arrivalsSnapshot = await db.collection("arrivals").get();
     const arrivals = [];
 
-    arrivalsSnapshot.forEach(doc => {
+    arrivalsSnapshot.forEach((doc) => {
       const arrivalData = doc.data();
       arrivalData.id = doc.id;
       arrivals.push(arrivalData);
@@ -328,14 +332,6 @@ app.get('/api/allArrivals', async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
-
-
-
-
-
-
-
-
 
 // Start the server
 app.listen(port, () => {
