@@ -1,19 +1,20 @@
 const express = require("express");
+const socketio = require("socket.io");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const admin = require("firebase-admin");
 
 const app = express();
 
-app.use(
-  cors({
-    origin: [
-      "https://azz-medical-associates.vercel.app",
-      "http://localhost:3000",
-      "https://dev.df2at0r8xfim4.amplifyapp.com",
-    ],
-  })
-);
+const corsString = {
+  origin: [
+    "https://azz-medical-associates.vercel.app",
+    "http://localhost:3000",
+    "https://dev.df2at0r8xfim4.amplifyapp.com",
+  ],
+};
+
+app.use(cors(corsString.origin));
 
 const port = process.env.PORT || 3001;
 
@@ -334,6 +335,27 @@ app.get("/api/allArrivals", async (req, res) => {
 });
 
 // Start the server
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+});
+
+const io = socketio(server, {
+  cors: {
+    origin: corsString.origin,
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on("newArrival", (data) => {
+    console.log("New arrival: ", data);
+    socket.broadcast.emit("updateArrivals", data);
+  });
+
+  socket.on("arrivalStatusChanged", (data) => {
+    console.log("Arrival Status Changed: ", data);
+    socket.broadcast.emit("updateArrivals", data);
+  });
 });
