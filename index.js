@@ -24,11 +24,13 @@ const loginRoutes = require("./routes/login");
 const arrivalsRoutes = require("./routes/arrivals");
 const doctorsRoutes = require("./routes/doctors");
 const callsRoutes = require("./routes/calls");
+const clinicsRoutes = require("./routes/clinics");
 
 app.use("/api", loginRoutes);
 app.use("/api/arrivals", arrivalsRoutes);
 app.use("/api/doctors", doctorsRoutes);
 app.use("/api/calls", callsRoutes);
+app.use("/api/clinics", clinicsRoutes);
 
 app.get("/api/allArrivals", async (req, res) => {
   try {
