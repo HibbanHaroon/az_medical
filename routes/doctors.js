@@ -3,10 +3,15 @@ const express = require("express");
 const router = express.Router();
 const db = require("../services/firebase");
 
-// Get all doctors
-router.get("/", async (req, res) => {
+// Get all doctors for a specific clinic
+router.get("/:clinicId", async (req, res) => {
+  const { clinicId } = req.params;
   try {
-    const doctorsSnapshot = await db.collection("doctors").get();
+    const doctorsSnapshot = await db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("doctors")
+      .get();
     const doctors = doctorsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -19,27 +24,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Add a new doctor
-router.post("/", async (req, res) => {
-  const { name, email, domain, clinicId } = req.body;
-
-  if (!name || !email || !domain || !clinicId) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
-
-  try {
-    const newDoctor = { name, email, domain, clinicId };
-    const docRef = await db.collection("doctors").add(newDoctor);
-    res.status(201).json({ id: docRef.id, ...newDoctor });
-  } catch (error) {
-    console.error("Error adding doctor:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-// Update a doctor
-router.put("/:id", async (req, res) => {
-  const { id } = req.params;
+// Add a new doctor to a specific clinic
+router.post("/:clinicId", async (req, res) => {
+  const { clinicId } = req.params;
   const { name, email, domain } = req.body;
 
   if (!name || !email || !domain) {
@@ -47,7 +34,34 @@ router.put("/:id", async (req, res) => {
   }
 
   try {
-    const doctorRef = db.collection("doctors").doc(id);
+    const newDoctor = { name, email, domain };
+    const docRef = await db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("doctors")
+      .add(newDoctor);
+    res.status(201).json({ id: docRef.id, ...newDoctor });
+  } catch (error) {
+    console.error("Error adding doctor:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Update a doctor in a specific clinic
+router.put("/:clinicId/:id", async (req, res) => {
+  const { clinicId, id } = req.params;
+  const { name, email, domain } = req.body;
+
+  if (!name || !email || !domain) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  try {
+    const doctorRef = db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("doctors")
+      .doc(id);
     const doc = await doctorRef.get();
 
     if (!doc.exists) {
@@ -62,12 +76,16 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Delete a doctor
-router.delete("/:id", async (req, res) => {
-  const { id } = req.params;
+// Delete a doctor from a specific clinic
+router.delete("/:clinicId/:id", async (req, res) => {
+  const { clinicId, id } = req.params;
 
   try {
-    const doctorRef = db.collection("doctors").doc(id);
+    const doctorRef = db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("doctors")
+      .doc(id);
     const doc = await doctorRef.get();
 
     if (!doc.exists) {
