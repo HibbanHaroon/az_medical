@@ -3,11 +3,13 @@ const express = require("express");
 const router = express.Router();
 const db = require("../services/firebase");
 
-router.get("/:doctorId", async (req, res) => {
+router.get("/:clinicId/:doctorId", async (req, res) => {
   try {
-    const doctorId = req.params.doctorId;
+    const { clinicId, doctorId } = req.params.doctorId;
 
     const querySnapshot = await db
+      .collection("clinics")
+      .doc(clinicId)
       .collection("arrivals")
       .where("doctorID", "==", doctorId)
       .get();
@@ -26,8 +28,9 @@ router.get("/:doctorId", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/:clinicId", async (req, res) => {
   try {
+    const { clinicId } = req.params;
     const {
       arrivalTime,
       askedToWait,
@@ -58,7 +61,11 @@ router.post("/", async (req, res) => {
       lastName,
     };
 
-    const docRef = await db.collection("arrivals").add(arrivalData);
+    const docRef = await db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("arrivals")
+      .add(arrivalData);
     res.status(201).json({ id: docRef.id });
   } catch (error) {
     console.error("Error inserting arrival:", error);
@@ -66,10 +73,12 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:arrivalId/askedToWait", async (req, res) => {
+router.put("/:clinicId/:arrivalId/askedToWait", async (req, res) => {
   try {
-    const arrivalId = req.params.arrivalId;
+    const { clinicId, arrivalId } = req.params;
     await db
+      .collection("clinics")
+      .doc(clinicId)
       .collection("arrivals")
       .doc(arrivalId)
       .update({ askedToWait: true });

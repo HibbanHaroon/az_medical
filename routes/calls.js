@@ -3,8 +3,9 @@ const express = require("express");
 const router = express.Router();
 const db = require("../services/firebase");
 
-router.post("/", async (req, res) => {
+router.post("/:clinicId", async (req, res) => {
   try {
+    const { clinicId } = req.params;
     const { DoctorName, patientName, patientLastName } = req.body;
 
     const newCallRequest = {
@@ -14,7 +15,11 @@ router.post("/", async (req, res) => {
       requestAttended: false,
     };
 
-    const docRef = await db.collection("callRequests").add(newCallRequest);
+    const docRef = await db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("callRequests")
+      .add(newCallRequest);
     return res
       .status(201)
       .json({ message: "Call request created successfully", id: docRef.id });
@@ -24,9 +29,12 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/:clinicId", async (req, res) => {
   try {
+    const { clinicId } = req.params;
     const callRequestsSnapshot = await db
+      .collection("clinics")
+      .doc(clinicId)
       .collection("callRequests")
       .where("requestAttended", "==", false)
       .get();
@@ -43,8 +51,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.put("/", async (req, res) => {
+router.put("/:clinicId", async (req, res) => {
   try {
+    const { clinicId } = req.params;
     const { id, requestAttended } = req.body;
 
     if (!id || typeof requestAttended !== "boolean") {
@@ -54,7 +63,12 @@ router.put("/", async (req, res) => {
       });
     }
 
-    await db.collection("callRequests").doc(id).update({ requestAttended });
+    await db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("callRequests")
+      .doc(id)
+      .update({ requestAttended });
     return res
       .status(200)
       .json({ message: "Call request updated successfully" });
