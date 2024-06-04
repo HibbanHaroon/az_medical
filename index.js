@@ -32,10 +32,14 @@ app.use("/api/doctors", doctorsRoutes);
 app.use("/api/calls", callsRoutes);
 app.use("/api/clinics", clinicsRoutes);
 
-app.get("/api/allArrivals", async (req, res) => {
+app.get("/api/:clinicId/allArrivals", async (req, res) => {
   try {
     const db = require("./services/firebase");
-    const arrivalsSnapshot = await db.collection("arrivals").get();
+    const arrivalsSnapshot = await db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("arrivals")
+      .get();
     const arrivals = [];
 
     arrivalsSnapshot.forEach((doc) => {
