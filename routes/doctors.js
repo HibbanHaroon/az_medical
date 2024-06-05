@@ -50,9 +50,9 @@ router.post("/:clinicId", async (req, res) => {
 // Update a doctor in a specific clinic
 router.put("/:clinicId/:id", async (req, res) => {
   const { clinicId, id } = req.params;
-  const { name, email, domain } = req.body;
+  const { name, domain } = req.body;
 
-  if (!name || !email || !domain) {
+  if (!name || !domain) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -68,8 +68,8 @@ router.put("/:clinicId/:id", async (req, res) => {
       return res.status(404).json({ message: "Doctor not found" });
     }
 
-    await doctorRef.update({ name, email, domain });
-    res.status(200).json({ id, name, email, domain });
+    await doctorRef.update({ name, domain });
+    res.status(200).json({ id, name, domain });
   } catch (error) {
     console.error("Error updating doctor:", error);
     res.status(500).json({ message: "Internal server error" });
