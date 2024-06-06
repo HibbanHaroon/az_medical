@@ -34,6 +34,7 @@ app.use("/api/clinics", clinicsRoutes);
 
 app.get("/api/:clinicId/allArrivals", async (req, res) => {
   try {
+    const { clinicId } = req.params;
     const db = require("./services/firebase");
     const arrivalsSnapshot = await db
       .collection("clinics")

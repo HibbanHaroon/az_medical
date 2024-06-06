@@ -5,7 +5,7 @@ const db = require("../services/firebase");
 
 router.get("/:clinicId/:doctorId", async (req, res) => {
   try {
-    const { clinicId, doctorId } = req.params.doctorId;
+    const { clinicId, doctorId } = req.params;
 
     const querySnapshot = await db
       .collection("clinics")
