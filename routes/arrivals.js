@@ -89,6 +89,63 @@ router.put("/:clinicId/:arrivalId/askedToWait", async (req, res) => {
   }
 });
 
+router.put("/:clinicId/:arrivalId/markExit", async (req, res) => {
+  try {
+    const { clinicId, arrivalId } = req.params;
+    const { endTime } = req.body;
+    await db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("arrivals")
+      .doc(arrivalId)
+      .update({ markExit: true, endTime: new Date(endTime).toISOString() });
+    return res.status(200).json({ message: "Arrival updated successfully" });
+  } catch (error) {
+    console.error("Error updating arrival:", error);
+    return res.status(500).json({ message: "Error updating arrival" });
+  }
+});
+
+router.put("/:clinicId/:arrivalId/inProgress", async (req, res) => {
+  try {
+    const { clinicId, arrivalId } = req.params;
+    const { startTime } = req.body;
+    await db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("arrivals")
+      .doc(arrivalId)
+      .update({
+        inProgress: true,
+        startTime: new Date(startTime).toISOString(),
+      });
+    return res.status(200).json({ message: "Arrival updated successfully" });
+  } catch (error) {
+    console.error("Error updating arrival:", error);
+    return res.status(500).json({ message: "Error updating arrival" });
+  }
+});
+
+router.put("/:clinicId/:arrivalId/calledInside", async (req, res) => {
+  try {
+    const { clinicId, arrivalId } = req.params;
+    const { calledInTime } = req.body;
+    await db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("arrivals")
+      .doc(arrivalId)
+      .update({
+        calledInside: true,
+        calledInTime: new Date(calledInTime).toISOString(),
+      });
+    return res.status(200).json({ message: "Arrival updated successfully" });
+  } catch (error) {
+    console.error("Error updating arrival:", error);
+    return res.status(500).json({ message: "Error updating arrival" });
+  }
+});
+
 // Add other PUT routes for updating arrivals (calledInside, inProgress, markExit)
 
 module.exports = router;
