@@ -27,9 +27,9 @@ router.get("/:clinicId", async (req, res) => {
 // Add a new nurse to a specific clinic
 router.post("/:clinicId", async (req, res) => {
   const { clinicId } = req.params;
-  const { name, email, nurseId } = req.body;
+  const { name, email, id } = req.body;
 
-  if (!name || !email || !nurseId) {
+  if (!name || !email || !id) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -39,7 +39,7 @@ router.post("/:clinicId", async (req, res) => {
       .collection("clinics")
       .doc(clinicId)
       .collection("nurses")
-      .doc(nurseId)
+      .doc(id)
       .set(newNurse);
     res.status(201).json({ id: docRef.id, ...newNurse });
   } catch (error) {
