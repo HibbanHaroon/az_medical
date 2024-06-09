@@ -27,14 +27,14 @@ router.get("/:clinicId", async (req, res) => {
 // Add a new nurse to a specific clinic
 router.post("/:clinicId", async (req, res) => {
   const { clinicId } = req.params;
-  const { name, email, domain, nurseId } = req.body;
+  const { name, email, nurseId } = req.body;
 
-  if (!name || !email || !domain || !nurseId) {
+  if (!name || !email || !nurseId) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
-    const newNurse = { name, email, domain };
+    const newNurse = { name, email };
     const docRef = await db
       .collection("clinics")
       .doc(clinicId)
@@ -51,9 +51,9 @@ router.post("/:clinicId", async (req, res) => {
 // Update a nurse in a specific clinic
 router.put("/:clinicId/:id", async (req, res) => {
   const { clinicId, id } = req.params;
-  const { name, domain } = req.body;
+  const { name } = req.body;
 
-  if (!name || !domain) {
+  if (!name) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -69,8 +69,8 @@ router.put("/:clinicId/:id", async (req, res) => {
       return res.status(404).json({ message: "Nurse not found" });
     }
 
-    await nurseRef.update({ name, domain });
-    res.status(200).json({ id, name, domain });
+    await nurseRef.update({ name });
+    res.status(200).json({ id, name });
   } catch (error) {
     console.error("Error updating nurse:", error);
     res.status(500).json({ message: "Internal server error" });

@@ -27,14 +27,14 @@ router.get("/:clinicId", async (req, res) => {
 // Add a new moderator to a specific clinic
 router.post("/:clinicId", async (req, res) => {
   const { clinicId } = req.params;
-  const { name, email, domain, moderatorId } = req.body;
+  const { name, email, moderatorId } = req.body;
 
-  if (!name || !email || !domain || !moderatorId) {
+  if (!name || !email || !moderatorId) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
-    const newModerator = { name, email, domain };
+    const newModerator = { name, email };
     const docRef = await db
       .collection("clinics")
       .doc(clinicId)
@@ -51,9 +51,9 @@ router.post("/:clinicId", async (req, res) => {
 // Update a moderator in a specific clinic
 router.put("/:clinicId/:id", async (req, res) => {
   const { clinicId, id } = req.params;
-  const { name, domain } = req.body;
+  const { name } = req.body;
 
-  if (!name || !domain) {
+  if (!name) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -69,8 +69,8 @@ router.put("/:clinicId/:id", async (req, res) => {
       return res.status(404).json({ message: "Moderator not found" });
     }
 
-    await moderatorRef.update({ name, domain });
-    res.status(200).json({ id, name, domain });
+    await moderatorRef.update({ name });
+    res.status(200).json({ id, name });
   } catch (error) {
     console.error("Error updating moderator:", error);
     res.status(500).json({ message: "Internal server error" });
