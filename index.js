@@ -32,7 +32,7 @@ const clinicsRoutes = require("./routes/clinics");
 app.use("/api", loginRoutes);
 app.use("/api/arrivals", arrivalsRoutes);
 app.use("/api/doctors", doctorsRoutes);
-app.use("/api/nursess", nursesRoutes);
+app.use("/api/nurses", nursesRoutes);
 app.use("/api/admins", adminsRoutes);
 app.use("/api/moderators", moderatorsRoutes);
 app.use("/api/calls", callsRoutes);
