@@ -23,12 +23,18 @@ app.use(bodyParser.json());
 const loginRoutes = require("./routes/login");
 const arrivalsRoutes = require("./routes/arrivals");
 const doctorsRoutes = require("./routes/doctors");
+const nursesRoutes = require("./routes/nurses");
+const adminsRoutes = require("./routes/admins");
+const moderatorsRoutes = require("./routes/moderators");
 const callsRoutes = require("./routes/calls");
 const clinicsRoutes = require("./routes/clinics");
 
 app.use("/api", loginRoutes);
 app.use("/api/arrivals", arrivalsRoutes);
 app.use("/api/doctors", doctorsRoutes);
+app.use("/api/nursess", nursesRoutes);
+app.use("/api/admins", adminsRoutes);
+app.use("/api/moderators", moderatorsRoutes);
 app.use("/api/calls", callsRoutes);
 app.use("/api/clinics", clinicsRoutes);
 
