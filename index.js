@@ -26,6 +26,7 @@ const doctorsRoutes = require("./routes/doctors");
 const nursesRoutes = require("./routes/nurses");
 const adminsRoutes = require("./routes/admins");
 const moderatorsRoutes = require("./routes/moderators");
+const superAdminsRoutes = require("./routes/superAdmins");
 const callsRoutes = require("./routes/calls");
 const clinicsRoutes = require("./routes/clinics");
 
@@ -35,6 +36,7 @@ app.use("/api/doctors", doctorsRoutes);
 app.use("/api/nurses", nursesRoutes);
 app.use("/api/admins", adminsRoutes);
 app.use("/api/moderators", moderatorsRoutes);
+app.use("/api/superAdmins", superAdminsRoutes);
 app.use("/api/calls", callsRoutes);
 app.use("/api/clinics", clinicsRoutes);
 
