@@ -44,6 +44,7 @@ router.post("/:clinicId", async (req, res) => {
       doctorID,
       firstName,
       lastName,
+      token,
     } = req.body;
 
     const arrivalData = {
@@ -59,6 +60,7 @@ router.post("/:clinicId", async (req, res) => {
       doctorID,
       firstName,
       lastName,
+      token,
     };
 
     const docRef = await db
