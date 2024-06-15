@@ -29,6 +29,7 @@ const moderatorsRoutes = require("./routes/moderators");
 const superAdminsRoutes = require("./routes/superAdmins");
 const callsRoutes = require("./routes/calls");
 const clinicsRoutes = require("./routes/clinics");
+const tokensRoutes = require("./routes/tokens");
 
 app.use("/api", loginRoutes);
 app.use("/api/arrivals", arrivalsRoutes);
@@ -39,6 +40,7 @@ app.use("/api/moderators", moderatorsRoutes);
 app.use("/api/superAdmins", superAdminsRoutes);
 app.use("/api/calls", callsRoutes);
 app.use("/api/clinics", clinicsRoutes);
+app.use("/api/tokens", tokensRoutes);
 
 app.get("/api/:clinicId/allArrivals", async (req, res) => {
   try {
