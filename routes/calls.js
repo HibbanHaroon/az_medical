@@ -6,13 +6,14 @@ const db = require("../services/firebase");
 router.post("/:clinicId", async (req, res) => {
   try {
     const { clinicId } = req.params;
-    const { DoctorName, patientName, patientLastName } = req.body;
+    const { DoctorName, patientName, patientLastName, token } = req.body;
 
     const newCallRequest = {
       DoctorName,
       patientName,
       patientLastName,
       requestAttended: false,
+      token,
     };
 
     const docRef = await db
