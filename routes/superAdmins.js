@@ -4,14 +4,9 @@ const router = express.Router();
 const db = require("../services/firebase");
 
 // Get all superAdmins for a specific clinic
-router.get("/:clinicId", async (req, res) => {
-  const { clinicId } = req.params;
+router.get("/", async (req, res) => {
   try {
-    const superAdminsSnapshot = await db
-      .collection("clinics")
-      .doc(clinicId)
-      .collection("superAdmins")
-      .get();
+    const superAdminsSnapshot = await db.collection("superAdmins").get();
     const superAdmins = superAdminsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -24,9 +19,8 @@ router.get("/:clinicId", async (req, res) => {
   }
 });
 
-// Add a new superAdmin to a specific clinic
-router.post("/:clinicId", async (req, res) => {
-  const { clinicId } = req.params;
+// Add a new superAdmin
+router.post("/", async (req, res) => {
   const { name, email, id } = req.body;
 
   if (!name || !email || !id) {
@@ -36,8 +30,6 @@ router.post("/:clinicId", async (req, res) => {
   try {
     const newSuperAdmin = { name, email };
     const docRef = await db
-      .collection("clinics")
-      .doc(clinicId)
       .collection("superAdmins")
       .doc(id)
       .set(newSuperAdmin);
@@ -48,9 +40,8 @@ router.post("/:clinicId", async (req, res) => {
   }
 });
 
-// Update a superAdmin in a specific clinic
-router.put("/:clinicId/:id", async (req, res) => {
-  const { clinicId, id } = req.params;
+// Update a superAdmin
+router.put("/:id", async (req, res) => {
   const { name } = req.body;
 
   if (!name) {
@@ -58,11 +49,7 @@ router.put("/:clinicId/:id", async (req, res) => {
   }
 
   try {
-    const superAdminRef = db
-      .collection("clinics")
-      .doc(clinicId)
-      .collection("superAdmins")
-      .doc(id);
+    const superAdminRef = db.collection("superAdmins").doc(id);
     const doc = await superAdminRef.get();
 
     if (!doc.exists) {
@@ -77,16 +64,10 @@ router.put("/:clinicId/:id", async (req, res) => {
   }
 });
 
-// Delete a superAdmin from a specific clinic
-router.delete("/:clinicId/:id", async (req, res) => {
-  const { clinicId, id } = req.params;
-
+// Delete a superAdmin
+router.delete("/:id", async (req, res) => {
   try {
-    const superAdminRef = db
-      .collection("clinics")
-      .doc(clinicId)
-      .collection("superAdmins")
-      .doc(id);
+    const superAdminRef = db.collection("superAdmins").doc(id);
     const doc = await superAdminRef.get();
 
     if (!doc.exists) {
