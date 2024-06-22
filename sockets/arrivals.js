@@ -8,6 +8,11 @@ const handleSocketConnections = (io) => {
       socket.broadcast.emit("updateArrivals", data);
     });
 
+    socket.on("arrivalCalled", (data) => {
+      console.log("Arrival Called: ", data);
+      socket.broadcast.emit("fetchCallRequests", data);
+    });
+
     socket.on("arrivalStatusChanged", (data) => {
       console.log("Arrival Status Changed: ", data);
       socket.broadcast.emit("updateArrivals", data);
