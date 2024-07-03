@@ -1,7 +1,7 @@
 // routes/login.js
 const express = require("express");
 const router = express.Router();
-const db = require("../services/firebase");
+const { db } = require("../services/firebase");
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;

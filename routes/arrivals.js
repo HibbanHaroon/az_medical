@@ -1,7 +1,7 @@
 // routes/arrivals.js
 const express = require("express");
 const router = express.Router();
-const db = require("../services/firebase");
+const { db } = require("../services/firebase");
 
 router.get("/:clinicId/:doctorId", async (req, res) => {
   try {

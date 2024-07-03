@@ -1,7 +1,7 @@
 // routes/superAdmins.js
 const express = require("express");
 const router = express.Router();
-const db = require("../services/firebase");
+const { db, auth } = require("../services/firebase");
 
 // Get all superAdmins for a specific clinic
 router.get("/", async (req, res) => {
@@ -75,6 +75,10 @@ router.delete("/:id", async (req, res) => {
     }
 
     await superAdminRef.delete();
+
+    // Delete the user from the authentication table as well
+    await auth.deleteUser(id);
+
     res.status(200).json({ message: "SuperAdmin deleted successfully" });
   } catch (error) {
     console.error("Error deleting superAdmin:", error);

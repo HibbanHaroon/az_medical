@@ -1,7 +1,7 @@
 // routes/nurses.js
 const express = require("express");
 const router = express.Router();
-const db = require("../services/firebase");
+const { db, auth } = require("../services/firebase");
 
 // Get all nurses for a specific clinic
 router.get("/:clinicId", async (req, res) => {
@@ -94,6 +94,10 @@ router.delete("/:clinicId/:id", async (req, res) => {
     }
 
     await nurseRef.delete();
+
+    // Delete the user from the authentication table as well
+    await auth.deleteUser(id);
+
     res.status(200).json({ message: "Nurse deleted successfully" });
   } catch (error) {
     console.error("Error deleting nurse:", error);
