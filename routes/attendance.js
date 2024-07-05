@@ -1,7 +1,7 @@
 // routes/attendance.js
 const express = require("express");
 const router = express.Router();
-const db = require("../services/firebase");
+const { db } = require("../services/firebase");
 
 // Get all attendance records for a specific clinic
 router.get("/:clinicId", async (req, res) => {
