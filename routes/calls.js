@@ -1,7 +1,7 @@
 // routes/calls.js
 const express = require("express");
 const router = express.Router();
-const db = require("../services/firebase");
+const { db } = require("../services/firebase");
 
 router.post("/:clinicId", async (req, res) => {
   try {

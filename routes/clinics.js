@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../services/firebase");
+const { db, auth } = require("../services/firebase");
 
 // Add a new clinic
 router.post("/", async (req, res) => {

@@ -1,7 +1,7 @@
 // routes/doctors.js
 const express = require("express");
 const router = express.Router();
-const db = require("../services/firebase");
+const { db, auth } = require("../services/firebase");
 
 // Get all doctors for a specific clinic
 router.get("/:clinicId", async (req, res) => {
@@ -94,6 +94,10 @@ router.delete("/:clinicId/:id", async (req, res) => {
     }
 
     await doctorRef.delete();
+
+    // Delete the user from the authentication table as well
+    await auth.deleteUser(id);
+
     res.status(200).json({ message: "Doctor deleted successfully" });
   } catch (error) {
     console.error("Error deleting doctor:", error);
