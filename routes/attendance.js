@@ -44,7 +44,7 @@ router.post("/:clinicId", async (req, res) => {
     res.status(201).json({ id: docRef.id, ...newAttendance });
   } catch (error) {
     console.error("Error adding attendance record:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", error: error });
   }
 });
 
