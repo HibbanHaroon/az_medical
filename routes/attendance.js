@@ -30,7 +30,7 @@ router.post("/:clinicId", async (req, res) => {
   const { id, datetime, status, nurseName, checkInTime, checkOutTime } =
     req.body;
 
-  if (!id || !datetime || !status || !nurseName || !checkInTime || !checkOutTime) {
+  if (!id || !datetime || !status || !nurseName) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
