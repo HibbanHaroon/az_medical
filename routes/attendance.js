@@ -30,12 +30,12 @@ router.post("/:clinicId", async (req, res) => {
   const { id, datetime, status, nurseName, checkInTime, checkOutTime } =
     req.body;
 
-  if (!id || !datetime || !status || !nurseName || !checkIn || !checkOut) {
+  if (!id || !datetime || !status || !nurseName || !checkInTime || !checkOutTime) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
-    const newAttendance = { datetime, status, nurseName, checkIn, checkOut };
+    const newAttendance = { datetime, status, nurseName, checkInTime, checkOutTime };
     const docRef = await db
       .collection("clinics")
       .doc(clinicId)
