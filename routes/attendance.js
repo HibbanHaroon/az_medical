@@ -1,4 +1,3 @@
-// routes/attendance.js
 const express = require("express");
 const router = express.Router();
 const { db } = require("../services/firebase");
@@ -24,6 +23,26 @@ router.get("/:clinicId", async (req, res) => {
   }
 });
 
+// Get a specific attendance record by ID
+router.get("/:clinicId/:id", async (req, res) => {
+  const { clinicId, id } = req.params;
+  try {
+    const doc = await db
+      .collection("clinics")
+      .doc(clinicId)
+      .collection("attendance")
+      .doc(id)
+      .get();
+    if (!doc.exists) {
+      return res.status(404).json({ message: "Attendance record not found" });
+    }
+    res.status(200).json({ id: doc.id, ...doc.data() });
+  } catch (error) {
+    console.error("Error fetching attendance record:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Add a new attendance record to a specific clinic
 router.post("/:clinicId", async (req, res) => {
   const { clinicId } = req.params;
@@ -35,7 +54,13 @@ router.post("/:clinicId", async (req, res) => {
   }
 
   try {
-    const newAttendance = { datetime, status, nurseName, checkInTime, checkOutTime };
+    const newAttendance = {
+      datetime,
+      status,
+      nurseName,
+      checkInTime,
+      checkOutTime,
+    };
     const docRef = await db
       .collection("clinics")
       .doc(clinicId)
@@ -54,7 +79,7 @@ router.put("/:clinicId/:id", async (req, res) => {
   const { clinicId, id } = req.params;
   const { datetime, status, nurseName, checkInTime, checkOutTime } = req.body;
 
-  if (!datetime || !status || !nurseName || !checkInTime || !checkOutTime) {
+  if (!datetime || !status || !nurseName) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
