@@ -46,20 +46,16 @@ router.get("/:clinicId/:id", async (req, res) => {
 // Add a new attendance record to a specific clinic
 router.post("/:clinicId", async (req, res) => {
   const { clinicId } = req.params;
-  const { id, datetime, status, nurseName, checkInTime, checkOutTime } =
-    req.body;
+  const { id, nurseName, pastThirtyDays } = req.body;
 
-  if (!id || !datetime || !status || !nurseName) {
+  if (!id || !nurseName || !pastThirtyDays) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
     const newAttendance = {
-      datetime,
-      status,
       nurseName,
-      checkInTime,
-      checkOutTime,
+      pastThirtyDays,
     };
     const docRef = await db
       .collection("clinics")
@@ -77,9 +73,9 @@ router.post("/:clinicId", async (req, res) => {
 // Update an attendance record in a specific clinic
 router.put("/:clinicId/:id", async (req, res) => {
   const { clinicId, id } = req.params;
-  const { datetime, status, nurseName, checkInTime, checkOutTime } = req.body;
+  const { nurseName, pastThirtyDays } = req.body;
 
-  if (!datetime || !status || !nurseName) {
+  if (!nurseName || !pastThirtyDays) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -96,15 +92,10 @@ router.put("/:clinicId/:id", async (req, res) => {
     }
 
     await attendanceRef.update({
-      datetime,
-      status,
       nurseName,
-      checkInTime,
-      checkOutTime,
+      pastThirtyDays,
     });
-    res
-      .status(200)
-      .json({ id, datetime, status, nurseName, checkInTime, checkOutTime });
+    res.status(200).json({ id, nurseName, pastThirtyDays });
   } catch (error) {
     console.error("Error updating attendance record:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -120,7 +111,9 @@ router.put("/:clinicId/:id/checkIn", async (req, res) => {
       .doc(clinicId)
       .collection("attendance")
       .doc(id)
-      .update({ checkInTime: new Date(checkInTime).toISOString() });
+      .update({
+        "pastThirtyDays.0.checkInTime": new Date(checkInTime).toISOString(),
+      });
     return res.status(200).json({ message: "Attendance updated successfully" });
   } catch (error) {
     console.error("Error updating attendance:", error);
@@ -137,7 +130,9 @@ router.put("/:clinicId/:id/checkOut", async (req, res) => {
       .doc(clinicId)
       .collection("attendance")
       .doc(id)
-      .update({ checkOutTime: new Date(checkOutTime).toISOString() });
+      .update({
+        "pastThirtyDays.0.checkOutTime": new Date(checkOutTime).toISOString(),
+      });
     return res.status(200).json({ message: "Attendance updated successfully" });
   } catch (error) {
     console.error("Error updating attendance:", error);
