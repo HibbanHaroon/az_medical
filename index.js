@@ -31,6 +31,7 @@ const callsRoutes = require("./routes/calls");
 const clinicsRoutes = require("./routes/clinics");
 const tokensRoutes = require("./routes/tokens");
 const attendanceRoutes = require("./routes/attendance");
+const ceosRoutes = require("./routes/ceos");
 
 app.use("/api", loginRoutes);
 app.use("/api/arrivals", arrivalsRoutes);
@@ -43,6 +44,7 @@ app.use("/api/calls", callsRoutes);
 app.use("/api/clinics", clinicsRoutes);
 app.use("/api/tokens", tokensRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/ceos", ceosRoutes);
 
 app.get("/api/:clinicId/allArrivals", async (req, res) => {
   try {
