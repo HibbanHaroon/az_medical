@@ -32,6 +32,8 @@ const clinicsRoutes = require("./routes/clinics");
 const tokensRoutes = require("./routes/tokens");
 const attendanceRoutes = require("./routes/attendance");
 const ceosRoutes = require("./routes/ceos");
+const hrStaffRoutes = require("./routes/hrStaff");
+const itStaffRoutes = require("./routes/itStaff");
 
 app.use("/api", loginRoutes);
 app.use("/api/arrivals", arrivalsRoutes);
@@ -45,6 +47,8 @@ app.use("/api/clinics", clinicsRoutes);
 app.use("/api/tokens", tokensRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/ceos", ceosRoutes);
+app.use("/api/hrStaff", hrStaffRoutes);
+app.use("/api/itStaff", itStaffRoutes);
 
 app.get("/api/:clinicId/allArrivals", async (req, res) => {
   try {
