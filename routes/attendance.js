@@ -7,7 +7,7 @@ function getCollection(clinicId, userId, isItStaff) {
   // Converting string to boolean
   const isStaff = isItStaff === "true";
 
-  if (isItStaff && userId) {
+  if (isStaff && userId) {
     return db.collection("itStaff").doc(userId).collection("attendance");
   } else {
     return db.collection("clinics").doc(clinicId).collection("attendance");
