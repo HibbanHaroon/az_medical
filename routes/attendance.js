@@ -4,6 +4,9 @@ const { db } = require("../services/firebase");
 
 // Helper function to get collection path
 function getCollection(clinicId, userId, isItStaff) {
+  // Converting string to boolean
+  const isStaff = isItStaff === "true";
+
   if (isItStaff && userId) {
     return db.collection("itStaff").doc(userId).collection("attendance");
   } else {
@@ -37,16 +40,6 @@ router.get("/:clinicId/:id", async (req, res) => {
   const { userId = null, isItStaff = false } = req.query;
 
   try {
-    console.log(
-      "clinicId",
-      clinicId,
-      "userId",
-      userId,
-      "id",
-      id,
-      "isItStaff",
-      isItStaff
-    );
     const doc = await getCollection(clinicId, userId, isItStaff).doc(id).get();
 
     if (!doc.exists) {
@@ -74,18 +67,6 @@ router.post("/:clinicId", async (req, res) => {
       nurseName,
       pastThirtyDays,
     };
-    console.log(
-      "clinicId",
-      clinicId,
-      "userId",
-      userId,
-      "id",
-      id,
-      "isItStaff",
-      isItStaff,
-      "newAttendance",
-      newAttendance
-    );
     await getCollection(clinicId, userId, isItStaff).doc(id).set(newAttendance);
     res.status(201).json({ id, ...newAttendance });
   } catch (error) {
