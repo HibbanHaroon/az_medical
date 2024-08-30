@@ -4,6 +4,7 @@ const { db } = require("../services/firebase");
 
 // Helper function to get collection path
 function getCollection(clinicId, userId, isItStaff) {
+  console.log(isItStaff && userId);
   if (isItStaff && userId) {
     return db.collection("itStaff").doc(userId).collection("attendance");
   } else {
@@ -17,11 +18,7 @@ router.get("/:clinicId", async (req, res) => {
   const { userId = null, isItStaff = false } = req.query;
 
   try {
-    const attendanceCollection = getCollection(
-      clinicId,
-      userId,
-      isItStaff === "true"
-    );
+    const attendanceCollection = getCollection(clinicId, userId, isItStaff);
     const attendanceSnapshot = await attendanceCollection.get();
     const attendanceRecords = attendanceSnapshot.docs.map((doc) => ({
       id: doc.id,
