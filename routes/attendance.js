@@ -2,23 +2,23 @@ const express = require("express");
 const router = express.Router();
 const { db } = require("../services/firebase");
 
-const getCollectionPath = (clinicId, userId, isITStaff) => {
-  if (isITStaff) {
+// Helper function to get collection path
+function getCollectionPath(clinicId, userId, isItStaff) {
+  if (isItStaff && userId) {
     return `itStaff/${userId}/attendance`;
-  } else {
-    return `clinics/${clinicId}/attendance`;
   }
-};
+  return `clinics/${clinicId}/attendance`;
+}
 
-// Get all attendance records for a specific clinic or IT staff
-router.get("/:clinicId/:userId", async (req, res) => {
-  const { clinicId, userId } = req.params;
-  const { isITStaff = false } = req.query;
+// Get all attendance records for a specific clinic
+router.get("/:clinicId", async (req, res) => {
+  const { clinicId } = req.params;
+  const { userId = null, isItStaff = false } = req.query;
 
   try {
-    const collectionPath = getCollectionPath(clinicId, userId, isITStaff);
-    const attendanceSnapshot = await db.collection(collectionPath).get();
-
+    const attendanceSnapshot = await db
+      .collection(getCollectionPath(clinicId, userId, isItStaff))
+      .get();
     const attendanceRecords = attendanceSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -32,18 +32,18 @@ router.get("/:clinicId/:userId", async (req, res) => {
 });
 
 // Get a specific attendance record by ID
-router.get("/:clinicId/:userId", async (req, res) => {
-  const { clinicId, userId } = req.params;
-  const { isITStaff = false } = req.query;
+router.get("/:clinicId/:id", async (req, res) => {
+  const { clinicId, id } = req.params;
+  const { userId = null, isItStaff = false } = req.query;
 
   try {
-    const collectionPath = getCollectionPath(clinicId, userId, isITStaff);
-    const doc = await db.collection(collectionPath).doc(userId).get();
-
+    const doc = await db
+      .collection(getCollectionPath(clinicId, userId, isItStaff))
+      .doc(id)
+      .get();
     if (!doc.exists) {
       return res.status(404).json({ message: "Attendance record not found" });
     }
-
     res.status(200).json({ id: doc.id, ...doc.data() });
   } catch (error) {
     console.error("Error fetching attendance record:", error);
@@ -51,49 +51,56 @@ router.get("/:clinicId/:userId", async (req, res) => {
   }
 });
 
-// Add a new attendance record to a specific clinic or IT staff
-router.post("/:clinicId/:userId", async (req, res) => {
-  const { clinicId, userId } = req.params;
-  const { id, nurseName, pastThirtyDays, isITStaff = false } = req.body;
+// Add a new attendance record to a specific clinic
+router.post("/:clinicId", async (req, res) => {
+  const { clinicId } = req.params;
+  const { userId = null, isItStaff = false } = req.query;
+  const { id, nurseName, pastThirtyDays } = req.body;
 
   if (!id || !nurseName || !pastThirtyDays) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
-    const collectionPath = getCollectionPath(clinicId, userId, isITStaff);
-    const newAttendance = { nurseName, pastThirtyDays };
-    const docRef = await db
-      .collection(collectionPath)
+    const newAttendance = {
+      nurseName,
+      pastThirtyDays,
+    };
+    await db
+      .collection(getCollectionPath(clinicId, userId, isItStaff))
       .doc(id)
       .set(newAttendance);
-
-    res.status(201).json({ id: docRef.id, ...newAttendance });
+    res.status(201).json({ id, ...newAttendance });
   } catch (error) {
     console.error("Error adding attendance record:", error);
     res.status(500).json({ message: "Internal server error", error: error });
   }
 });
 
-// Update an attendance record in a specific clinic or IT staff
-router.put("/:clinicId/:userId", async (req, res) => {
-  const { clinicId, userId } = req.params;
-  const { nurseName, pastThirtyDays, isITStaff = false } = req.body;
+// Update an attendance record in a specific clinic
+router.put("/:clinicId/:id", async (req, res) => {
+  const { clinicId, id } = req.params;
+  const { userId = null, isItStaff = false } = req.query;
+  const { nurseName, pastThirtyDays } = req.body;
 
   if (!nurseName || !pastThirtyDays) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
-    const collectionPath = getCollectionPath(clinicId, userId, isITStaff);
-    const attendanceRef = db.collection(collectionPath).doc(userId);
+    const attendanceRef = db
+      .collection(getCollectionPath(clinicId, userId, isItStaff))
+      .doc(id);
     const doc = await attendanceRef.get();
 
     if (!doc.exists) {
       return res.status(404).json({ message: "Attendance record not found" });
     }
 
-    await attendanceRef.update({ nurseName, pastThirtyDays });
+    await attendanceRef.update({
+      nurseName,
+      pastThirtyDays,
+    });
     res.status(200).json({ id, nurseName, pastThirtyDays });
   } catch (error) {
     console.error("Error updating attendance record:", error);
@@ -101,20 +108,18 @@ router.put("/:clinicId/:userId", async (req, res) => {
   }
 });
 
-// Check-in functionality
-router.put("/:clinicId/:userId/checkIn", async (req, res) => {
-  const { clinicId, userId } = req.params;
-  const { checkInTime, isITStaff = false } = req.body;
+router.put("/:clinicId/:id/checkIn", async (req, res) => {
+  const { clinicId, id } = req.params;
+  const { userId = null, isItStaff = false } = req.query;
+  const { checkInTime } = req.body;
 
   try {
-    const collectionPath = getCollectionPath(clinicId, userId, isITStaff);
     await db
-      .collection(collectionPath)
-      .doc(userId)
+      .collection(getCollectionPath(clinicId, userId, isItStaff))
+      .doc(id)
       .update({
         "pastThirtyDays.0.checkInTime": new Date(checkInTime).toISOString(),
       });
-
     return res.status(200).json({ message: "Attendance updated successfully" });
   } catch (error) {
     console.error("Error updating attendance:", error);
@@ -122,20 +127,18 @@ router.put("/:clinicId/:userId/checkIn", async (req, res) => {
   }
 });
 
-// Check-out functionality
-router.put("/:clinicId/:userId/checkOut", async (req, res) => {
-  const { clinicId, userId } = req.params;
-  const { checkOutTime, isITStaff = false } = req.body;
+router.put("/:clinicId/:id/checkOut", async (req, res) => {
+  const { clinicId, id } = req.params;
+  const { userId = null, isItStaff = false } = req.query;
+  const { checkOutTime } = req.body;
 
   try {
-    const collectionPath = getCollectionPath(clinicId, userId, isITStaff);
     await db
-      .collection(collectionPath)
-      .doc(userId)
+      .collection(getCollectionPath(clinicId, userId, isItStaff))
+      .doc(id)
       .update({
         "pastThirtyDays.0.checkOutTime": new Date(checkOutTime).toISOString(),
       });
-
     return res.status(200).json({ message: "Attendance updated successfully" });
   } catch (error) {
     console.error("Error updating attendance:", error);
@@ -143,14 +146,15 @@ router.put("/:clinicId/:userId/checkOut", async (req, res) => {
   }
 });
 
-// Delete an attendance record from a specific clinic or IT staff
-router.delete("/:clinicId/:userId", async (req, res) => {
-  const { clinicId, userId } = req.params;
-  const { isITStaff = false } = req.query;
+// Delete an attendance record from a specific clinic
+router.delete("/:clinicId/:id", async (req, res) => {
+  const { clinicId, id } = req.params;
+  const { userId = null, isItStaff = false } = req.query;
 
   try {
-    const collectionPath = getCollectionPath(clinicId, userId, isITStaff);
-    const attendanceRef = db.collection(collectionPath).doc(userId);
+    const attendanceRef = db
+      .collection(getCollectionPath(clinicId, userId, isItStaff))
+      .doc(id);
     const doc = await attendanceRef.get();
 
     if (!doc.exists) {
