@@ -3,11 +3,12 @@ const router = express.Router();
 const { db } = require("../services/firebase");
 
 // Helper function to get collection path
-function getCollectionPath(clinicId, userId, isItStaff) {
+function getCollection(clinicId, userId, isItStaff) {
   if (isItStaff && userId) {
-    return `itStaff/${userId}/attendance`;
+    return db.collection("itStaff").doc(userId).collection("attendance");
+  } else {
+    return db.collection("clinics").doc(clinicId).collection("attendance");
   }
-  return `clinics/${clinicId}/attendance`;
 }
 
 // Get all attendance records for a specific clinic
@@ -16,9 +17,12 @@ router.get("/:clinicId", async (req, res) => {
   const { userId = null, isItStaff = false } = req.query;
 
   try {
-    const attendanceSnapshot = await db
-      .collection(getCollectionPath(clinicId, userId, isItStaff))
-      .get();
+    const attendanceCollection = getCollection(
+      clinicId,
+      userId,
+      isItStaff === "true"
+    );
+    const attendanceSnapshot = await attendanceCollection.get();
     const attendanceRecords = attendanceSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
@@ -37,10 +41,7 @@ router.get("/:clinicId/:id", async (req, res) => {
   const { userId = null, isItStaff = false } = req.query;
 
   try {
-    const doc = await db
-      .collection(getCollectionPath(clinicId, userId, isItStaff))
-      .doc(id)
-      .get();
+    const doc = await getCollection(clinicId, userId, isItStaff).doc(id).get();
     if (!doc.exists) {
       return res.status(404).json({ message: "Attendance record not found" });
     }
@@ -66,10 +67,7 @@ router.post("/:clinicId", async (req, res) => {
       nurseName,
       pastThirtyDays,
     };
-    await db
-      .collection(getCollectionPath(clinicId, userId, isItStaff))
-      .doc(id)
-      .set(newAttendance);
+    await getCollection(clinicId, userId, isItStaff).doc(id).set(newAttendance);
     res.status(201).json({ id, ...newAttendance });
   } catch (error) {
     console.error("Error adding attendance record:", error);
@@ -88,9 +86,7 @@ router.put("/:clinicId/:id", async (req, res) => {
   }
 
   try {
-    const attendanceRef = db
-      .collection(getCollectionPath(clinicId, userId, isItStaff))
-      .doc(id);
+    const attendanceRef = getCollection(clinicId, userId, isItStaff).doc(id);
     const doc = await attendanceRef.get();
 
     if (!doc.exists) {
@@ -114,8 +110,7 @@ router.put("/:clinicId/:id/checkIn", async (req, res) => {
   const { checkInTime } = req.body;
 
   try {
-    await db
-      .collection(getCollectionPath(clinicId, userId, isItStaff))
+    await getCollection(clinicId, userId, isItStaff)
       .doc(id)
       .update({
         "pastThirtyDays.0.checkInTime": new Date(checkInTime).toISOString(),
@@ -133,8 +128,7 @@ router.put("/:clinicId/:id/checkOut", async (req, res) => {
   const { checkOutTime } = req.body;
 
   try {
-    await db
-      .collection(getCollectionPath(clinicId, userId, isItStaff))
+    await getCollection(clinicId, userId, isItStaff)
       .doc(id)
       .update({
         "pastThirtyDays.0.checkOutTime": new Date(checkOutTime).toISOString(),
@@ -152,9 +146,7 @@ router.delete("/:clinicId/:id", async (req, res) => {
   const { userId = null, isItStaff = false } = req.query;
 
   try {
-    const attendanceRef = db
-      .collection(getCollectionPath(clinicId, userId, isItStaff))
-      .doc(id);
+    const attendanceRef = getCollection(clinicId, userId, isItStaff).doc(id);
     const doc = await attendanceRef.get();
 
     if (!doc.exists) {
